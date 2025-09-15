@@ -20,8 +20,19 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push
+
+      - name: Build and push (main branch → latest)
+        if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v5
         with:
-          push: true
-          tags: robhortonicr/my-apache:latest
+            push: true
+            tags: robhortonicr/my-apache:latest
+  
+      - name: Build and push (tagged release → version + latest)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: docker/build-push-action@v5
+        with:
+            push: true
+            tags: |
+              robhortonicr/my-apache:latest
+              robhortonicr/my-apache:${{ github.ref_name }}
